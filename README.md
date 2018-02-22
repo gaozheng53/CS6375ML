@@ -9,6 +9,7 @@ test_set,training_set,validation_set #dataset of hw2
 ##Running Environment
 
 MacOS 10.12.6+python3
+
 ##How to Run
 
 1. GredientDescent.py
