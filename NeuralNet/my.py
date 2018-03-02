@@ -25,26 +25,21 @@ import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 
+
 class NeuralNet:
-    def __init__(self, train, header = True, h1 = 4, h2 = 2):
+    def __init__(self, train, header=True, h1=4, h2=2):
         np.random.seed(1)
         # train refers to the training dataset
         # test refers to the testing dataset
         # h1 and h2 represent the number of nodes in 1st and 2nd hidden layers
 
-        raw_input = train
-        raw_input = raw_input.replace(' ?', np.NaN)
-        raw_input = raw_input.dropna()
+        raw_input = pd.read_csv(train)
         # TODO: Remember to implement the preprocess method
-        ncols = len(raw_input.columns)
-        nrows = len(raw_input.index)
-        print(ncols)
-        print(nrows)
-        self.X = raw_input.iloc[:, 0:(ncols -1)].values.reshape(nrows, ncols-1)
-        self.y = raw_input.iloc[:, (ncols-1)].values.reshape(nrows, 1)
-        self.X = self.preprocess_attr(self.X)
-        self.y = self.preprocess_class(self.y)
-        self.y = self.y.reshape(len(self.y), 1)
+        train_dataset = self.preprocess(raw_input)
+        ncols = len(train_dataset.columns)
+        nrows = len(train_dataset.index)
+        self.X = train_dataset.iloc[:, 0:(ncols - 1)].values.reshape(nrows, ncols - 1)
+        self.y = train_dataset.iloc[:, (ncols - 1)].values.reshape(nrows, 1)
         #
         # Find number of input and output layers from the dataset
         #
@@ -66,6 +61,7 @@ class NeuralNet:
         self.X23 = np.zeros((len(self.X), h2))
         self.delta23 = np.zeros((h2, output_layer_size))
         self.deltaOut = np.zeros((output_layer_size, 1))
+
     #
     # TODO: I have coded the sigmoid activation function, you need to do the same for tanh and ReLu
     #
@@ -95,26 +91,17 @@ class NeuralNet:
     #   categorical to numerical, etc
     #
 
-    def preprocess_attr(self, X):
-        for i in range(len(X[0])):
-            le = preprocessing.LabelEncoder()
-            X[:, i] = le.fit_transform(X[:, i])
-        min_max_scaler = preprocessing.MinMaxScaler()
-        X_train_minmax = min_max_scaler.fit_transform(X)
-        X_normalized = preprocessing.normalize(X_train_minmax, norm='l2')
-        X = X_normalized
-        return X
+    def preprocess(self, X):
 
-    def preprocess_class(self,y):
-        le = preprocessing.LabelEncoder()
-        y_Encoder = le.fit_transform(y)
-        return y_Encoder
+        return X
 
     # Below is the training function
 
-    def train(self, max_iterations = 1000, learning_rate = 0.05):
+    def train(self, max_iterations=1000, learning_rate=0.05):
         for iteration in range(max_iterations):
             out = self.forward_pass()
+            print(out)
+            print(self.y)
             error = 0.5 * np.power((out - self.y), 2)
             self.backward_pass(out, activation="sigmoid")
             update_layer2 = learning_rate * self.X23.T.dot(self.deltaOut)
@@ -133,15 +120,13 @@ class NeuralNet:
 
     def forward_pass(self):
         # pass our inputs through our neural network
-        in1 = np.dot(self.X, self.w01 )
+        in1 = np.dot(self.X, self.w01)
         self.X12 = self.__sigmoid(in1)
         in2 = np.dot(self.X12, self.w12)
         self.X23 = self.__sigmoid(in2)
         in3 = np.dot(self.X23, self.w23)
         out = self.__sigmoid(in3)
         return out
-
-
 
     def backward_pass(self, out, activation):
         # pass our inputs through our neural network
@@ -185,14 +170,12 @@ class NeuralNet:
     # You can assume that the test dataset has the same format as the training dataset
     # You have to output the test error from this function
 
-    def predict(self, test, header = True):
+    def predict(self, test, header=True):
         return 0
 
 
 if __name__ == "__main__":
-    read_file = pd.read_csv("adult.data")
-    df_split = np.array_split(read_file,2)
-    neural_network = NeuralNet(df_split[0])
+    neural_network = NeuralNet("train.csv")
     neural_network.train()
-    testError = neural_network.predict(df_split[1])
+    testError = neural_network.predict("test.csv")
 
