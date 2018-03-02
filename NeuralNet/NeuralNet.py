@@ -93,13 +93,26 @@ class NeuralNet:
 
     def preprocess(self, X):
         # last_col = X.iloc[:,-1]
-        array = X.as_matrix();
+        arr_X = self.inplaceEncode(X)
         X_scaled = preprocessing.MinMaxScaler()
-        X_train_minmax = X_scaled.fit_transform(array)
+        X_train_minmax = X_scaled.fit_transform(arr_X)
         X_normalized = preprocessing.normalize(X_train_minmax, norm='l2')
         print(X_normalized)
         pd_scaled = pd.DataFrame(X_normalized)
         return pd_scaled
+
+    # todo 最后一列也需要scaler,normalize这些？？
+
+    # Encode DataFrame X's last column to int(in-place process) and output as array
+    def inplaceEncode(self, X):
+        le = preprocessing.LabelEncoder()
+        le.fit(X.iloc[:, -1])
+        list_label = list(le.classes_)
+        arr_X = X.as_matrix()
+        for row in arr_X:
+            row[-1] = list_label.index(row[-1])
+        # print(arr_X)
+        return arr_X
 
     # Below is the training function
 
@@ -179,18 +192,18 @@ class NeuralNet:
 
 
 if __name__ == "__main__":
-    # read_file = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data')
-    read_file1 = pd.read_csv('train.csv')
-    read_file2 = pd.read_csv('test.csv')
-    # df_split = np.array_split(read_file, 2)
-    neural_network = NeuralNet(read_file1)
+    # # read_file = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data')
+    # read_file1 = pd.read_csv('train.csv')
+    # read_file2 = pd.read_csv('test.csv')
+    # # df_split = np.array_split(read_file, 2)
+    # neural_network = NeuralNet(read_file1)
+    # neural_network.train()
+    # testError = neural_network.predict(read_file2)
+
+
+
+    read_file = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data')
+    df_split = np.array_split(read_file, 2)
+    neural_network = NeuralNet(df_split[0])
     neural_network.train()
-    testError = neural_network.predict(read_file2)
-
-
-
- # read_file = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data')
- #    # df_split = np.array_split(read_file, 2)
- #    neural_network = NeuralNet(df_split[0])
- #    neural_network.train()
- #    testError = neural_network.predict(df_split[1])
+    testError = neural_network.predict(df_split[1])
