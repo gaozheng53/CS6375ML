@@ -25,20 +25,21 @@ import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 
+
 class NeuralNet:
-    def __init__(self, train, header = True, h1 = 4, h2 = 2):
+    def __init__(self, train, header=True, h1=4, h2=2):
         np.random.seed(1)
         # train refers to the training dataset
         # test refers to the testing dataset
         # h1 and h2 represent the number of nodes in 1st and 2nd hidden layers
 
-        raw_input = pd.read_csv(train)
+        raw_input = train
         # TODO: Remember to implement the preprocess method
         train_dataset = self.preprocess(raw_input)
         ncols = len(train_dataset.columns)
         nrows = len(train_dataset.index)
-        self.X = train_dataset.iloc[:, 0:(ncols -1)].values.reshape(nrows, ncols-1)
-        self.y = train_dataset.iloc[:, (ncols-1)].values.reshape(nrows, 1)
+        self.X = train_dataset.iloc[:, 0:(ncols - 1)].values.reshape(nrows, ncols - 1)
+        self.y = train_dataset.iloc[:, (ncols - 1)].values.reshape(nrows, 1)
         #
         # Find number of input and output layers from the dataset
         #
@@ -60,6 +61,7 @@ class NeuralNet:
         self.X23 = np.zeros((len(self.X), h2))
         self.delta23 = np.zeros((h2, output_layer_size))
         self.deltaOut = np.zeros((output_layer_size, 1))
+
     #
     # TODO: I have coded the sigmoid activation function, you need to do the same for tanh and ReLu
     #
@@ -90,12 +92,18 @@ class NeuralNet:
     #
 
     def preprocess(self, X):
-        
-        return X
+        # last_col = X.iloc[:,-1]
+        array = X.as_matrix();
+        X_scaled = preprocessing.MinMaxScaler()
+        X_train_minmax = X_scaled.fit_transform(array)
+        X_normalized = preprocessing.normalize(X_train_minmax, norm='l2')
+        print(X_normalized)
+        pd_scaled = pd.DataFrame(X_normalized)
+        return pd_scaled
 
     # Below is the training function
 
-    def train(self, max_iterations = 1000, learning_rate = 0.05):
+    def train(self, max_iterations=1000, learning_rate=0.05):
         for iteration in range(max_iterations):
             out = self.forward_pass()
             error = 0.5 * np.power((out - self.y), 2)
@@ -116,15 +124,13 @@ class NeuralNet:
 
     def forward_pass(self):
         # pass our inputs through our neural network
-        in1 = np.dot(self.X, self.w01 )
+        in1 = np.dot(self.X, self.w01)
         self.X12 = self.__sigmoid(in1)
         in2 = np.dot(self.X12, self.w12)
         self.X23 = self.__sigmoid(in2)
         in3 = np.dot(self.X23, self.w23)
         out = self.__sigmoid(in3)
         return out
-
-
 
     def backward_pass(self, out, activation):
         # pass our inputs through our neural network
@@ -168,12 +174,23 @@ class NeuralNet:
     # You can assume that the test dataset has the same format as the training dataset
     # You have to output the test error from this function
 
-    def predict(self, test, header = True):
+    def predict(self, test, header=True):
         return 0
 
 
 if __name__ == "__main__":
-    neural_network = NeuralNet("train.csv")
+    # read_file = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data')
+    read_file1 = pd.read_csv('train.csv')
+    read_file2 = pd.read_csv('test.csv')
+    # df_split = np.array_split(read_file, 2)
+    neural_network = NeuralNet(read_file1)
     neural_network.train()
-    testError = neural_network.predict("test.csv")
+    testError = neural_network.predict(read_file2)
 
+
+
+ # read_file = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data')
+ #    # df_split = np.array_split(read_file, 2)
+ #    neural_network = NeuralNet(df_split[0])
+ #    neural_network.train()
+ #    testError = neural_network.predict(df_split[1])
