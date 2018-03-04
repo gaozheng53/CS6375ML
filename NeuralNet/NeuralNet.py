@@ -26,7 +26,7 @@ import pandas as pd
 from sklearn import preprocessing
 
 class NeuralNet:
-    def __init__(self, train, header = True, h1 = 4, h2 = 2):
+    def __init__(self, train, h1 = 4, h2 = 2):
         np.random.seed(1)
         # train refers to the training dataset
         # test refers to the testing dataset
@@ -136,7 +136,7 @@ class NeuralNet:
 
     # Below is the training function
 
-    def train(self, activation, max_iterations = 1000, learning_rate = 0.05):
+    def train(self, activation = "sigmoid", max_iterations = 1000, learning_rate = 0.05):
         for iteration in range(max_iterations):
             out = self.forward_pass(activation)
             error = 0.5 * np.power((out - self.y), 2)
@@ -252,14 +252,35 @@ class NeuralNet:
     # You can assume that the test dataset has the same format as the training dataset
     # You have to output the test error from this function
 
-    def predict(self, test, header = True):
-        return 0
+    def predict(self, test, activation):
+
+        raw_input = test
+
+        # missing data processing
+        raw_input = raw_input.replace(' ?', np.NaN)
+        raw_input = raw_input.dropna()
+
+        ncols = len(raw_input.columns)
+        nrows = len(raw_input.index)
+        self.X = raw_input.iloc[:, 0:(ncols - 1)].values.reshape(nrows, ncols - 1)
+        self.y = raw_input.iloc[:, (ncols - 1)].values.reshape(nrows, 1)
+        self.X = self.preprocess_attr(self.X)
+        self.y = self.preprocess_class(self.y)
+        self.y = self.y.reshape(len(self.y), 1)
+
+        out = self.forward_pass(activation)
+        error = 0.5 * np.power((out - self.y), 2)
+
+        return np.sum(error)
 
 
 if __name__ == "__main__":
-    read_file = pd.read_csv("adult.data")
+    read_file = pd.read_csv("iris.data")
     df_split = np.array_split(read_file, 2)
-    neural_network = NeuralNet(df_split[0])
-    neural_network.train("relu")
-    testError = neural_network.predict(df_split[1])
+    neural_network = NeuralNet(df_split[0], 4, 2)
+
+    # parameters: activation, max_iteration, learning_rate
+    neural_network.train("relu", 1000, 0.001)
+    testError = neural_network.predict(df_split[1], "relu")
+    print("TestError is: ", testError)
 
