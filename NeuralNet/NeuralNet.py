@@ -24,6 +24,7 @@
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
+import sys
 
 class NeuralNet:
     def __init__(self, train, h1 = 4, h2 = 2):
@@ -108,10 +109,10 @@ class NeuralNet:
         return 1-np.square(x)
 
     def __relu(self, x):
-        return np.where(x > 0, x, 0)
+        return np.where(x > 0, x, 0.1*x)
 
     def __relu_derivative(self, x):
-        return np.where(x > 0, 1, 0)
+        return np.where(x > 0, 1, 0.1)
 
 
     #
@@ -275,12 +276,14 @@ class NeuralNet:
 
 
 if __name__ == "__main__":
-    read_file = pd.read_csv("iris.data")
+
+    path = sys.argv[1]
+    read_file = pd.read_csv(path)
     df_split = np.array_split(read_file, 2)
     neural_network = NeuralNet(df_split[0], 4, 2)
 
     # parameters: activation, max_iteration, learning_rate
-    neural_network.train("relu", 1000, 0.001)
-    testError = neural_network.predict(df_split[1], "relu")
+    neural_network.train("sigmoid", 1000, 0.05)
+    testError = neural_network.predict(df_split[1], "sigmoid")
     print("TestError is: ", testError)
 
