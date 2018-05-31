@@ -1,16 +1,16 @@
 # MLTraining
 
-##File Structure
+## File Structure
 
 GredientDescent.py  # Solution of hw1
 ID3.py   #Solution of hw2
 NeuralNet.py 	#Solution of hw3
 
-##Running Environment
+## Running Environment
 
 MacOS 10.12.6+python3
 
-##How to Run
+## How to Run
 
 1. GredientDescent.py
 2. ID3.py
