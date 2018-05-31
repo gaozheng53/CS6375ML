@@ -2,9 +2,9 @@
 
 ## File Structure
 
-GredientDescent.py  # Solution of hw1
-ID3.py   #Solution of hw2
-NeuralNet.py 	#Solution of hw3
+- GredientDescent.py  # Solution of hw1
+- ID3.py   #Solution of hw2
+- NeuralNet.py 	#Solution of hw3
 
 ## Running Environment
 
